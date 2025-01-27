@@ -15,12 +15,12 @@ option(USE_BANG "Enable BANG compilation" OFF)
 option(USE_CPU "Enable CPU-only compilation" OFF)
 
 # 查找源文件
-# 添加头文件搜索路径  
+# 添加头文件搜索路径
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #使用 GLOB 命令找到 include/ 下的所有 .cpp 文件
 file(GLOB INCLUDE_SOURCE_FILES "include/**.cpp")
- 
+
 # 使用 list(APPEND ...) 命令将 INCLUDE_SOURCE_FILES 添加到 CPP_SOURCE_FILES
 file(GLOB CPP_SOURCE_FILES "src/**/cpu/*.cpp")
 list(APPEND CPP_SOURCE_FILES ${INCLUDE_SOURCE_FILES})
@@ -30,7 +30,7 @@ file(GLOB GPU_CUDA_FILES "src/**/gpu/*.cu")
 file(GLOB GPU_CUDNN_FILES "src/**/gpu/*.cpp")
 list(APPEND CUDA_SOURCE_FILES ${GPU_CUDA_FILES} ${GPU_CUDNN_FILES})
 
-# 查找所有 .mlu, .cpp 文件 
+# 查找所有 .mlu, .cpp 文件
 file(GLOB BANG_MLU_FILES "src/**/mlu/*.mlu")
 file(GLOB BANG_CNNL_FILES "src/**/mlu/*.cpp")
 list(APPEND BANG_SOURCE_FILES ${BANG_MLU_FILES} ${BANG_CNNL_FILES})
@@ -43,23 +43,23 @@ if(USE_CUDA)
     list(APPEND ALL_SOURCE_FILES ${CUDA_SOURCE_FILES} ${CPP_SOURCE_FILES})
     add_library(my_library SHARED ${ALL_SOURCE_FILES})# 创建库或可执行文件
     set_target_properties(my_library PROPERTIES
-        CUDA_ARCHITECTURES 80
+        CUDA_ARCHITECTURES ivcore10
     )
     target_link_libraries(my_library cudnn cublas)#如果调用cudnn库需要链接cudnn, cublas
 
 elseif(USE_BANG)
     message(STATUS "BANG build enabled.")
-    
+
     set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -fPIC -std=c++11 -pthread -pipe")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS} -O3")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -fPIC")
 
     # check `NEUWARE_HOME` env
-    if(NOT DEFINED ENV{NEUWARE_HOME})  
-        set(NEUWARE_HOME "/usr/local/neuware" CACHE PATH "Path to NEUWARE installation")  
-    else()  
-        set(NEUWARE_HOME $ENV{NEUWARE_HOME} CACHE PATH "Path to NEUWARE installation" FORCE)  
+    if(NOT DEFINED ENV{NEUWARE_HOME})
+        set(NEUWARE_HOME "/usr/local/neuware" CACHE PATH "Path to NEUWARE installation")
+    else()
+        set(NEUWARE_HOME $ENV{NEUWARE_HOME} CACHE PATH "Path to NEUWARE installation" FORCE)
     endif()
       # check `NEUWARE_HOME` env
     message(${NEUWARE_HOME})
